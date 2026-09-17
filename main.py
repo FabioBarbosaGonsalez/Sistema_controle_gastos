@@ -1,4 +1,5 @@
 import sistema
+gerenciador = sistema.GerenciadorFinanceiro()
 
 print("\n  SELECIONE UMA OPÇÃO:  \n ")
 print("1 => Novo lançamento")
@@ -7,18 +8,18 @@ print("3 => Verificar saldo")
 print("4 => Verificar extrato")
 print("5 => Limpar lançamentos")
 print("6 => Encerrar\n")
-opcao = int(input("Escolha uma opção: "))
+opcao = sistema.ler_inteiro("Escolha uma opção: ")
 
 while (opcao != 6):
     if opcao == 1:
         print("\n1 => Cadastrar receita")
         print("2 => Cadastrar despesa\n")
-        opcao_lancamento = int(input("Tipo de lançamento: "))
+        opcao_lancamento = sistema.ler_inteiro("Tipo de lançamento: ")
 
         while(opcao_lancamento not in [1,2]):
             print("\n1 => Cadastrar receita")
             print("2 => Cadastrar despesa\n")
-            opcao_lancamento = int(input("Tipo de lançamento: "))
+            opcao_lancamento = sistema.ler_inteiro("Tipo de lançamento: ")
         if opcao_lancamento == 1:
             tipo = "receita"
         elif opcao_lancamento == 2: 
@@ -26,34 +27,34 @@ while (opcao != 6):
 
         categoria = str(input("Categoria: "))
         descricao = str(input("Descrição: "))
-        sistema.novo_lancamento(categoria, descricao, tipo, sistema.lancamentos)
+        gerenciador.novo_lancamento(categoria, descricao, tipo)
 
     elif opcao == 2:
-        sistema.listar_lancamentos(sistema.lancamentos)
-        if len(sistema.lancamentos) != 0:
-            id_informado = int(input("ID do lançamento a ser excluído: "))
-            sistema.exclui_lancamento(id_informado, sistema.lancamentos)
+        gerenciador.listar_lancamentos()
+        if len(gerenciador.lancamentos) != 0:
+            id_informado = sistema.ler_inteiro("ID do lançamento a ser excluído: ")
+            gerenciador.exclui_lancamento(id_informado)
 
     elif opcao == 3:
-        sistema.mostrar_saldo(sistema.lancamentos)
+        gerenciador.mostrar_saldo()
 
     elif opcao == 4:
-        sistema.listar_lancamentos(sistema.lancamentos)
+        gerenciador.listar_lancamentos()
 
     elif opcao == 5:
         print("Tem certeza que deseja prosseguir? Não será possível reverter essa ação.\n")
         print("1 => Sim, desejo prosseguir")
         print("2 => Não, cancelar ação\n")
-        opcao_desejo = int(input("Digite uma opção: "))
+        opcao_desejo = sistema.ler_inteiro("Digite uma opção: ")
 
         while(opcao_desejo not in [1,2]):
             print("Tem certeza que deseja prosseguir? Não será possível reverter essa ação.\n")
             print("1 => Sim, desejo prosseguir")
             print("2 => Não, cancelar ação\n")
-            opcao_desejo = int(input("Digite uma opção: "))
+            opcao_desejo = sistema.ler_inteiro("Digite uma opção: ")
 
         if opcao_desejo == 1: 
-            sistema.limpa_lancamentos(sistema.lancamentos)
+            gerenciador.limpa_lancamentos()
 
 
     else:
@@ -67,4 +68,4 @@ while (opcao != 6):
     print("4 => Verificar extrato")
     print("5 => Limpar lançamentos")
     print("6 => Encerrar\n")
-    opcao = int(input("Escolha uma opção: "))
+    opcao = sistema.ler_inteiro("Escolha uma opção: ")

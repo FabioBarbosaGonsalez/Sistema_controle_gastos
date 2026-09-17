@@ -20,73 +20,90 @@ class Lancamento:
             f"Valor: R$ {self.valor:.2f}\n"
         )
 
-lancamentos = [] #histórico de lançamentos
+class GerenciadorFinanceiro:
+    def __init__(self):
+        self.lancamentos = []
 
-#adiciona receitas e despesas
-def novo_lancamento(categoria, descricao, tipo, lancamentos):
-    _id = max((lancamento._id for lancamento in lancamentos), default=0) + 1
-    data = datetime.now()
-    if tipo == "receita":
-        valor = float(input("Digite o valor da receita: "))
-        lancamentos.append(Lancamento(_id, data, valor, categoria, descricao, tipo))
-        salva_dados(lancamentos)
-    elif tipo == "despesa":
-        valor = float(input("Digite o valor da despesa: ")) 
-        lancamentos.append(Lancamento(_id, data, -valor, categoria, descricao, tipo))
-        salva_dados(lancamentos)
+    #adiciona receitas e despesas
+    def novo_lancamento(self, categoria, descricao, tipo):
+        _id = max((lancamento._id for lancamento in self.lancamentos), default=0) + 1
+        data = datetime.now()
+        if tipo == "receita":
+            valor = ler_float("Digite o valor da receita: ")
+            self.lancamentos.append(Lancamento(_id, data, valor, categoria, descricao, tipo))
+            self.salva_dados()
+        elif tipo == "despesa":
+            valor = ler_float("Digite o valor da despesa: ") 
+            self.lancamentos.append(Lancamento(_id, data, -valor, categoria, descricao, tipo))
+            self.salva_dados()
 
-#lista histórico de lançamentos
-def listar_lancamentos(lancamentos):
-    if len(lancamentos) == 0:
-        print("Sem histórico de lançamentos.")
-    else:
-        for lancamento in lancamentos:
-            print(lancamento) #"lancamento.__str__()"
+    #lista histórico de lançamentos
+    def listar_lancamentos(self):
+        if len(self.lancamentos) == 0:
+            print("Sem histórico de lançamentos.")
+        else:
+            for lancamento in self.lancamentos:
+                print(lancamento) #"lancamento.__str__()"
 
-#mostra saldo atual
-def mostrar_saldo(lancamentos):
-    saldo = sum([lancamento.valor for lancamento in lancamentos])
-    print(f"Saldo: R$ {saldo:.2f}\n")
+    #mostra saldo atual
+    def mostrar_saldo(self):
+        saldo = sum([lancamento.valor for lancamento in self.lancamentos])
+        print(f"Saldo: R$ {saldo:.2f}\n")
 
-def exclui_lancamento(id_informado, lancamentos):
-    if len(lancamentos) == 0:
-        print("Não há lançamentos a serem excluídos.")
-    elif id_informado in [lancamento._id for lancamento in lancamentos]:
-        for indice, lancamento in enumerate(lancamentos):
-            if lancamento._id == id_informado:
-                lancamentos.pop(indice) 
-                break
-        for novo_id, lancamento in enumerate(lancamentos, start=1):
-            lancamento._id = novo_id
-        salva_dados(lancamentos)
-        print("Lançamento excluido com sucesso! Os ID's foram atualizados.")
-    else:
-        print("Lançamento não encontrado.")
+    def exclui_lancamento(self, id_informado):
+        if len(self.lancamentos) == 0:
+            print("Não há lançamentos a serem excluídos.")
+        elif id_informado in [lancamento._id for lancamento in self.lancamentos]:
+            for indice, lancamento in enumerate(self.lancamentos):
+                if lancamento._id == id_informado:
+                    self.lancamentos.pop(indice) 
+                    break
+            for novo_id, lancamento in enumerate(self.lancamentos, start=1):
+                lancamento._id = novo_id
+            self.salva_dados()
+            print("Lançamento excluido com sucesso! Os ID's foram atualizados.")
+        else:
+            print("Lançamento não encontrado.")
 
-def limpa_lancamentos(lancamentos):
-    if len(lancamentos) == 0:
-        print("Não há lançamentos a serem excluídos.")
-    else:
-        lancamentos.clear()
-        salva_dados(lancamentos)
-        print("Lançamentos excluídos.")
-    
-#salva dados em arquivo csv
-def salva_dados(lancamentos):
-    campos = ["id", "data", "valor", "categoria", "descricao", "tipo"]
-    with open("lancamentos.csv", "w", newline="", encoding="utf-8-sig") as arquivo:
-        escritor = csv.writer(arquivo, delimiter=";")
-        escritor.writerow(campos)
-        for lancamento in lancamentos:
-            escritor.writerow([
-                lancamento._id,
-                lancamento.data.strftime("%Y-%m-%d %H:%M:%S"),
-                lancamento.valor,
-                lancamento.categoria,
-                lancamento.descricao,
-                lancamento.tipo
-            ])
+    def limpa_lancamentos(self):
+        if len(self.lancamentos) == 0:
+            print("Não há lançamentos a serem excluídos.")
+        else:
+            self.lancamentos.clear()
+            self.salva_dados()
+            print("Lançamentos excluídos.")
+        
+    #salva dados em arquivo csv
+    def salva_dados(self):
+        campos = ["id", "data", "valor", "categoria", "descricao", "tipo"]
+        with open("lancamentos.csv", "w", newline="", encoding="utf-8-sig") as arquivo:
+            escritor = csv.writer(arquivo, delimiter=";")
+            escritor.writerow(campos)
+            for lancamento in self.lancamentos:
+                escritor.writerow([
+                    lancamento._id,
+                    lancamento.data.strftime("%Y-%m-%d %H:%M:%S"),
+                    lancamento.valor,
+                    lancamento.categoria,
+                    lancamento.descricao,
+                    lancamento.tipo
+                ])
 
-#Implementações Futuras:
-#Criar gráficos
-#Interface HTML e CSS
+
+def ler_inteiro(mensagem):
+        while True:
+            try:
+                opcao = int(input(mensagem))
+                return opcao
+            except ValueError:
+                print("Entrada Inválida")
+
+def ler_float(mensagem):
+        while True:
+            try:
+                valor = float(input(mensagem))
+                return valor
+            except ValueError:
+                print("Entrada Inválida")
+
+

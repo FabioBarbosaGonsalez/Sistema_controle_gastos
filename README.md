@@ -1,6 +1,6 @@
 # Controle Financeiro (CLI)
 
-Sistema de linha de comando para controle financeiro pessoal, feito em Python. Permite registrar receitas e despesas, consultar saldo, ver o extrato completo e manter um histórico salvo em CSV.
+Sistema para controle financeiro pessoal, feito em Python. Permite registrar receitas e despesas, consultar saldo, ver o extrato completo e manter um histórico salvo em CSV.
 
 Este projeto foi construído como parte do meu portfólio, com foco em praticar lógica de programação, estruturação de código em módulos e manipulação de arquivos.
 

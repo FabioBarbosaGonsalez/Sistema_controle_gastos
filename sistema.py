@@ -48,7 +48,7 @@ class GerenciadorFinanceiro:
     #mostra saldo atual
     def mostrar_saldo(self):
         saldo = sum([lancamento.valor for lancamento in self.lancamentos])
-        print(f"Saldo: R$ {saldo:.2f}\n")
+        return saldo
 
     def exclui_lancamento(self, id_informado):
         if len(self.lancamentos) == 0:

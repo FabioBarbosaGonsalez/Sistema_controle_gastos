@@ -36,7 +36,8 @@ while (opcao != 6):
             gerenciador.exclui_lancamento(id_informado)
 
     elif opcao == 3:
-        gerenciador.mostrar_saldo()
+        saldo = gerenciador.mostrar_saldo()
+        print(f"Saldo: R$ {saldo:.2f}\n")
 
     elif opcao == 4:
         gerenciador.listar_lancamentos()

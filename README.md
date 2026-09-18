@@ -39,15 +39,14 @@ O programa vai abrir um menu interativo no terminal com as opções disponíveis
 - Python 3
 - Módulo `csv` da biblioteca padrão
 - Módulo `datetime` da biblioteca padrão
+- Módulo `pytest` para testes automatizados
 
 ## Próximos passos
 
 Algumas melhorias que pretendo implementar:
 
-- Tratamento de erros para entradas inválidas do usuário
-- Testes automatizados das principais funções
 - Geração de gráficos simples com os dados financeiros
-- Possível criação de uma interface web usando Flask
+- Possível criação de uma interface web 
 
 ## Sobre
 

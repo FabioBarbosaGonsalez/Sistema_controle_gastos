@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#16181b">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+    <title>{% block titulo %}Controle Financeiro{% endblock %}</title>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container navbar__conteudo">
+            <a class="marca" href="{{ url_for('home') }}">
+                <span class="marca__icone" aria-hidden="true">R$</span>
+                <span>Controle Financeiro</span>
+            </a>
+            <nav class="navbar__links" aria-label="Navegação principal">
+                <a href="{{ url_for('home') }}#resumo">Resumo</a>
+                <a href="{{ url_for('home') }}#categorias">Categorias</a>
+                <a href="{{ url_for('extrato') }}">Extrato</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {% with mensagens = get_flashed_messages(with_categories=true) %}
+            {% if mensagens %}
+                <div class="mensagens" role="status">
+                    {% for categoria, mensagem in mensagens %}
+                        <div class="mensagem mensagem--{{ categoria }}">
+                            <span>{{ mensagem }}</span>
+                            <button type="button" class="mensagem__fechar" data-fechar-mensagem aria-label="Fechar mensagem">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block conteudo %}{% endblock %}
+    </main>
+
+    <footer class="rodape">
+        <div class="container">
+            <p>Controle Financeiro &middot; dados salvos localmente em <code>lancamentos.csv</code></p>
+        </div>
+    </footer>
+
+    {# Modal: novo lançamento #}
+    <dialog id="modal-novo" class="modal" aria-labelledby="titulo-novo">
+        <form method="post" action="{{ url_for('novo_lancamento') }}" class="formulario">
+            <h2 id="titulo-novo">Novo lançamento</h2>
+
+            <fieldset class="seletor-tipo">
+                <legend>Tipo de lançamento</legend>
+                <label class="seletor-tipo__opcao seletor-tipo__opcao--receita">
+                    <input type="radio" name="tipo" value="Receita" required checked>
+                    <span>Receita</span>
+                </label>
+                <label class="seletor-tipo__opcao seletor-tipo__opcao--despesa">
+                    <input type="radio" name="tipo" value="Despesa" required>
+                    <span>Despesa</span>
+                </label>
+            </fieldset>
+
+            <label class="campo">
+                <span>Valor (R$)</span>
+                <input type="number" name="valor" min="0.01" step="0.01" placeholder="0,00" required inputmode="decimal">
+            </label>
+
+            <label class="campo">
+                <span>Categoria</span>
+                <input type="text" name="categoria" list="lista-categorias" maxlength="40" placeholder="Ex.: Alimentação" required autocomplete="off">
+                <datalist id="lista-categorias">
+                    {% for categoria in categorias_sugeridas %}
+                        <option value="{{ categoria }}">
+                    {% endfor %}
+                </datalist>
+            </label>
+
+            <label class="campo">
+                <span>Descrição</span>
+                <input type="text" name="descricao" maxlength="80" placeholder="Ex.: Almoço no restaurante" required>
+            </label>
+
+            <div class="modal__acoes">
+                <button type="button" class="botao botao--fantasma" data-fechar-modal>Cancelar</button>
+                <button type="submit" class="botao botao--primario">Salvar lançamento</button>
+            </div>
+        </form>
+    </dialog>
+
+    {# Modal: excluir lançamento #}
+    <dialog id="modal-excluir" class="modal" aria-labelledby="titulo-excluir">
+        <form method="post" action="{{ url_for('excluir_lancamento') }}" class="formulario">
+            <h2 id="titulo-excluir">Excluir lançamento</h2>
+            <p class="texto-suave">Informe o ID do lançamento (consulte o extrato). Os IDs seguintes serão renumerados.</p>
+            <input type="hidden" name="origem" value="{% block origem %}home{% endblock %}">
+            <label class="campo">
+                <span>ID do lançamento</span>
+                <input type="number" name="id" min="1" step="1" required inputmode="numeric">
+            </label>
+            <div class="modal__acoes">
+                <button type="button" class="botao botao--fantasma" data-fechar-modal>Cancelar</button>
+                <button type="submit" class="botao botao--perigo">Excluir</button>
+            </div>
+        </form>
+    </dialog>
+
+    {# Modal: limpar lançamentos (confirmação obrigatória) #}
+    <dialog id="modal-limpar" class="modal" aria-labelledby="titulo-limpar">
+        <form method="post" action="{{ url_for('limpar_lancamentos') }}" class="formulario">
+            <h2 id="titulo-limpar">Limpar todos os lançamentos?</h2>
+            <p class="texto-suave">Tem certeza que deseja prosseguir? Não será possível reverter essa ação.</p>
+            <input type="hidden" name="origem" value="{{ self.origem() }}">
+            <label class="campo-checkbox">
+                <input type="checkbox" name="confirmacao" value="sim" required>
+                <span>Sim, desejo apagar todos os lançamentos</span>
+            </label>
+            <div class="modal__acoes">
+                <button type="button" class="botao botao--fantasma" data-fechar-modal>Não, cancelar ação</button>
+                <button type="submit" class="botao botao--perigo">Limpar lançamentos</button>
+            </div>
+        </form>
+    </dialog>
+
+    {% block modais %}{% endblock %}
+
+</body>
+</html>

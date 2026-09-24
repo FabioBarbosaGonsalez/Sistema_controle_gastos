@@ -1,0 +1,28 @@
+{% macro valor_formatado(valor) -%}
+    <span class="valor {{ 'valor--receita' if valor >= 0 else 'valor--despesa' }}">
+        {{- '+' if valor >= 0 else '−' }} R$ {{ valor|moeda -}}
+    </span>
+{%- endmacro %}
+
+{% macro item_lancamento(lancamento, origem='home', com_exclusao=false) %}
+    <li class="lancamento">
+        <span class="lancamento__marcador lancamento__marcador--{{ 'receita' if lancamento.valor >= 0 else 'despesa' }}" aria-hidden="true"></span>
+        <div class="lancamento__info">
+            <strong class="lancamento__descricao">{{ lancamento.descricao }}</strong>
+            <span class="lancamento__meta">
+                #{{ lancamento._id }} &middot; {{ lancamento.categoria }} &middot;
+                <time datetime="{{ lancamento.data.strftime('%Y-%m-%d') }}">{{ lancamento.data.strftime('%d/%m/%Y') }}</time>
+            </span>
+        </div>
+        <div class="lancamento__lado">
+            {{ valor_formatado(lancamento.valor) }}
+            {% if com_exclusao %}
+                <form method="post" action="{{ url_for('excluir_lancamento') }}" data-confirmar="Excluir o lançamento #{{ lancamento._id }} ({{ lancamento.descricao }})?">
+                    <input type="hidden" name="id" value="{{ lancamento._id }}">
+                    <input type="hidden" name="origem" value="{{ origem }}">
+                    <button type="submit" class="botao-icone" aria-label="Excluir lançamento {{ lancamento._id }}" title="Excluir">&times;</button>
+                </form>
+            {% endif %}
+        </div>
+    </li>
+{% endmacro %}

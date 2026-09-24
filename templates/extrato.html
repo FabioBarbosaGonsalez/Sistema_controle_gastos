@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% from "_macros.html" import item_lancamento, valor_formatado %}
+
+{% block titulo %}Extrato · Controle Financeiro{% endblock %}
+{% block origem %}extrato{% endblock %}
+
+{% block conteudo %}
+
+    <div class="cabecalho-pagina">
+        <a class="link" href="{{ url_for('home') }}">&larr; Voltar ao resumo</a>
+        <h1>Extrato</h1>
+    </div>
+
+    {% include "_acoes.html" %}
+
+    <section class="cartao" aria-labelledby="titulo-extrato">
+        <div class="cartao__cabecalho">
+            <h2 id="titulo-extrato" class="cartao__titulo">Todos os lançamentos</h2>
+            <span class="texto-suave">{{ lancamentos|length }} {{ 'lançamento' if lancamentos|length == 1 else 'lançamentos' }}</span>
+        </div>
+
+        {% if lancamentos %}
+            <ul class="lista-lancamentos">
+                {% for lancamento in lancamentos|reverse %}
+                    {{ item_lancamento(lancamento, origem='extrato', com_exclusao=true) }}
+                {% endfor %}
+            </ul>
+
+            <dl class="extrato__totais">
+                <div><dt>Receitas</dt><dd class="valor--receita">R$ {{ receitas|moeda }}</dd></div>
+                <div><dt>Despesas</dt><dd class="valor--despesa">R$ {{ despesas|moeda }}</dd></div>
+                <div class="extrato__saldo"><dt>Saldo</dt><dd>{{ valor_formatado(saldo) }}</dd></div>
+            </dl>
+        {% else %}
+            <p class="vazio">Sem histórico de lançamentos.</p>
+        {% endif %}
+    </section>
+
+{% endblock %}

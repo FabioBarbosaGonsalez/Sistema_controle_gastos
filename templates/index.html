@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% from "_macros.html" import item_lancamento %}
+
+{% block conteudo %}
+
+    <section id="resumo" class="saldo" aria-labelledby="titulo-saldo">
+        <div class="saldo__principal">
+            <h1 id="titulo-saldo" class="saldo__rotulo">Saldo atual</h1>
+            <p class="saldo__valor {{ 'saldo__valor--negativo' if saldo < 0 }}">
+                {{ '−' if saldo < 0 }}R$ {{ saldo|moeda }}
+            </p>
+        </div>
+        <div class="saldo__totais">
+            <div class="saldo__total saldo__total--receita">
+                <span class="saldo__total-rotulo">Receitas</span>
+                <strong class="saldo__total-valor">R$ {{ receitas|moeda }}</strong>
+            </div>
+            <div class="saldo__total saldo__total--despesa">
+                <span class="saldo__total-rotulo">Despesas</span>
+                <strong class="saldo__total-valor">R$ {{ despesas|moeda }}</strong>
+            </div>
+        </div>
+    </section>
+
+    {% include "_acoes.html" %}
+
+    <section class="indicadores" aria-label="Indicadores">
+        <article class="cartao indicador">
+            <span class="indicador__rotulo">Lançamentos</span>
+            <strong class="indicador__valor">{{ total_lancamentos }}</strong>
+        </article>
+        <article class="cartao indicador">
+            <span class="indicador__rotulo">Maior despesa</span>
+            {% if maior_despesa %}
+                <strong class="indicador__valor valor--despesa">R$ {{ maior_despesa.valor|moeda }}</strong>
+                <span class="indicador__detalhe">{{ maior_despesa.descricao }}</span>
+            {% else %}
+                <strong class="indicador__valor">—</strong>
+            {% endif %}
+        </article>
+        <article class="cartao indicador">
+            <span class="indicador__rotulo">Taxa de economia</span>
+            {% if taxa_economia is not none %}
+                <strong class="indicador__valor {{ 'valor--receita' if taxa_economia >= 0 else 'valor--despesa' }}">{{ '%.0f'|format(taxa_economia) }}%</strong>
+                <span class="indicador__detalhe">do que entrou ainda está disponível</span>
+            {% else %}
+                <strong class="indicador__valor">—</strong>
+                <span class="indicador__detalhe">cadastre uma receita</span>
+            {% endif %}
+        </article>
+    </section>
+
+    <div class="grade">
+        <section id="categorias" class="cartao" aria-labelledby="titulo-categorias">
+            <h2 id="titulo-categorias" class="cartao__titulo">Despesas por categoria</h2>
+            {% if categorias %}
+                <ul class="categorias">
+                    {% for categoria, total in categorias %}
+                        {% set percentual = total / despesas * 100 %}
+                        <li class="categoria">
+                            <div class="categoria__linha">
+                                <span>{{ categoria }}</span>
+                                <span class="categoria__valor">R$ {{ total|moeda }} <small>({{ '%.0f'|format(percentual) }}%)</small></span>
+                            </div>
+                            <div class="barra" role="presentation">
+                                <div class="barra__preenchimento" style="width: {{ '%.1f'|format(percentual) }}%"></div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="vazio">Nenhuma despesa cadastrada ainda.</p>
+            {% endif %}
+        </section>
+
+        <section id="ultimos" class="cartao" aria-labelledby="titulo-ultimos">
+            <div class="cartao__cabecalho">
+                <h2 id="titulo-ultimos" class="cartao__titulo">Últimos lançamentos</h2>
+                <a class="link" href="{{ url_for('extrato') }}">Ver extrato completo &rarr;</a>
+            </div>
+            {% if ultimos_lancamentos %}
+                <ul class="lista-lancamentos">
+                    {% for lancamento in ultimos_lancamentos %}
+                        {{ item_lancamento(lancamento) }}
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="vazio">
+                    <p>Sem histórico de lançamentos.</p>
+                    <button type="button" class="botao botao--primario" data-abrir-modal="modal-novo">Cadastrar o primeiro</button>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+
+{% endblock %}

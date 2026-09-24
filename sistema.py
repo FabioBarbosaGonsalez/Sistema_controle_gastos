@@ -21,38 +21,47 @@ class Lancamento:
         )
 
 class GerenciadorFinanceiro:
-    def __init__(self):
+    def __init__(self, arquivo="lancamentos.csv"):
+        self.arquivo = arquivo
         self.lancamentos = []
+        self.carrega_dados()
 
     #adiciona receitas e despesas
-    def novo_lancamento(self, categoria, descricao, tipo):
+    def novo_lancamento(self, valor, categoria, descricao, tipo):
         _id = max((lancamento._id for lancamento in self.lancamentos), default=0) + 1
         data = datetime.now()
-        if tipo == "receita":
-            valor = ler_float("Digite o valor da receita: ")
-            self.lancamentos.append(Lancamento(_id, data, valor, categoria, descricao, tipo))
-            self.salva_dados()
-        elif tipo == "despesa":
-            valor = ler_float("Digite o valor da despesa: ") 
-            self.lancamentos.append(Lancamento(_id, data, -valor, categoria, descricao, tipo))
-            self.salva_dados()
-
+        self.lancamentos.append(Lancamento(_id, data, valor, categoria, descricao, tipo))
+        self.salva_dados()
+        
     #lista histórico de lançamentos
     def listar_lancamentos(self):
-        if len(self.lancamentos) == 0:
-            print("Sem histórico de lançamentos.")
-        else:
-            for lancamento in self.lancamentos:
-                print(lancamento) #"lancamento.__str__()"
+        return self.lancamentos
 
     #mostra saldo atual
     def mostrar_saldo(self):
         saldo = sum([lancamento.valor for lancamento in self.lancamentos])
         return saldo
 
+    #soma de todas as receitas
+    def total_receitas(self):
+        return sum(lancamento.valor for lancamento in self.lancamentos if lancamento.valor > 0)
+
+    #soma de todas as despesas (valor positivo)
+    def total_despesas(self):
+        return -sum(lancamento.valor for lancamento in self.lancamentos if lancamento.valor < 0)
+
+    #total gasto em cada categoria, da maior para a menor
+    def despesas_por_categoria(self):
+        categorias = {}
+        for lancamento in self.lancamentos:
+            if lancamento.valor < 0:
+                categorias[lancamento.categoria] = categorias.get(lancamento.categoria, 0) - lancamento.valor
+        return sorted(categorias.items(), key=lambda item: item[1], reverse=True)
+
+    #exclui um lançamento
     def exclui_lancamento(self, id_informado):
         if len(self.lancamentos) == 0:
-            print("Não há lançamentos a serem excluídos.")
+            return "Não há lançamentos a serem excluídos."
         elif id_informado in [lancamento._id for lancamento in self.lancamentos]:
             for indice, lancamento in enumerate(self.lancamentos):
                 if lancamento._id == id_informado:
@@ -61,22 +70,42 @@ class GerenciadorFinanceiro:
             for novo_id, lancamento in enumerate(self.lancamentos, start=1):
                 lancamento._id = novo_id
             self.salva_dados()
-            print("Lançamento excluido com sucesso! Os ID's foram atualizados.")
+            return "Lançamento excluido com sucesso! Os ID's foram atualizados."
         else:
-            print("Lançamento não encontrado.")
+            return "Lançamento não encontrado."
 
+    #exclui todos os lançamentos
     def limpa_lancamentos(self):
         if len(self.lancamentos) == 0:
-            print("Não há lançamentos a serem excluídos.")
+            return "Não há lançamentos a serem excluídos."
         else:
             self.lancamentos.clear()
             self.salva_dados()
-            print("Lançamentos excluídos.")
-        
+            return "Lançamentos excluídos."
+
+    #carrega dados salvos anteriormente no csv, se existir
+    def carrega_dados(self):
+        try:
+            with open(self.arquivo, "r", newline="", encoding="utf-8-sig") as arquivo:
+                leitor = csv.DictReader(arquivo, delimiter=";")
+                for linha in leitor:
+                    self.lancamentos.append(
+                        Lancamento(
+                            int(linha["id"]),
+                            datetime.strptime(linha["data"], "%Y-%m-%d %H:%M:%S"),
+                            float(linha["valor"]),
+                            linha["categoria"],
+                            linha["descricao"],
+                            linha["tipo"]
+                        )
+                    )
+        except FileNotFoundError:
+            pass
+
     #salva dados em arquivo csv
     def salva_dados(self):
         campos = ["id", "data", "valor", "categoria", "descricao", "tipo"]
-        with open("lancamentos.csv", "w", newline="", encoding="utf-8-sig") as arquivo:
+        with open(self.arquivo, "w", newline="", encoding="utf-8-sig") as arquivo:
             escritor = csv.writer(arquivo, delimiter=";")
             escritor.writerow(campos)
             for lancamento in self.lancamentos:
@@ -89,7 +118,7 @@ class GerenciadorFinanceiro:
                     lancamento.tipo
                 ])
 
-
+#tratamentos de erros
 def ler_inteiro(mensagem):
         while True:
             try:
@@ -101,9 +130,7 @@ def ler_inteiro(mensagem):
 def ler_float(mensagem):
         while True:
             try:
-                valor = float(input(mensagem))
+                valor = float(input(mensagem).replace(",", "."))
                 return valor
             except ValueError:
                 print("Entrada Inválida")
-
-

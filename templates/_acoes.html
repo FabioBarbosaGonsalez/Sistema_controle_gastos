@@ -1,0 +1,9 @@
+<section class="acoes" aria-label="Ações">
+    <button type="button" class="botao botao--primario" data-abrir-modal="modal-novo">
+        <span aria-hidden="true">+</span> Novo lançamento
+    </button>
+    <button type="button" class="botao" data-abrir-modal="modal-excluir">Excluir lançamento</button>
+    <a class="botao" href="{{ url_for('verificar_saldo') }}">Verificar saldo</a>
+    <a class="botao" href="{{ url_for('extrato') }}">Verificar extrato</a>
+    <button type="button" class="botao botao--perigo-suave" data-abrir-modal="modal-limpar">Limpar lançamentos</button>
+</section>
